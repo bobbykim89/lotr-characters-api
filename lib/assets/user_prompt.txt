@@ -1,0 +1,7 @@
+Context from database:
+{retrieved_context}
+
+User question:
+{user_question}
+
+Answer the question using ONLY the context above.
