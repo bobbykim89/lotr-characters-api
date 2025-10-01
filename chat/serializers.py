@@ -4,11 +4,11 @@ from .models import Conversation, Message
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ["id", "role", "content", "created_at"]
+        fields = ["id", "question", "answer", "created_at"]
 
 class ConversationSerializer(serializers.ModelSerializer):
     messages = MessageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Conversation
-        field = ["id", "created_at", "messages"]
+        fields = ["id", "created_at", "messages"]
