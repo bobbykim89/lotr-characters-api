@@ -26,6 +26,7 @@ class LotrCharactersRag:
         QDRANT_URL = environ.get('QDRANT_CLOUD_URL')
         QDRANT_API_KEY = environ.get('QDRANT_API_KEY')
         self.qd_client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
+        self.COLLECTION_NAME = "lotr-characters"
         current_file = Path(__file__).resolve()
         project_root = current_file.parent.parent
         self.prompt_path = project_root / "lib" / "assets"
