@@ -34,10 +34,9 @@ class ConversationView(APIView):
 class MessageView(APIView):
     """
     POST:
-        - Save user message
         - Run RAG pipeline to generate assistant reply
-        - Save assistant reply
-        - Return reply
+        - Save user question and assistant answer into message object
+        - Return message object
     """
     def post(self, request):
         conversation_id = request.data.get("conversation_id")
