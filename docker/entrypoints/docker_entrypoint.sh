@@ -1,25 +1,6 @@
 #!/bin/sh
 set -e
 
-echo "Waiting for database to be ready..."
-until python - <<'PY'
-import os, sys
-import psycopg2
-import dj_database_url
-
-try:
-    db_url = os.environ.get("DB_URL")
-    conn = psycopg2.connect(db_url)
-    conn.close()
-except Exception as e:
-    sys.exit(1)
-sys.exit(0)
-PY
-do
-  echo "Postgres is unavailable - sleeping"
-  sleep 2
-done
-
 echo "Database is up — make migrations"
 python manage.py makemigrations
 

@@ -83,10 +83,12 @@ WSGI_APPLICATION = 'app.wsgi.app'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
+    # Comment in below line for local container run
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
+    #     'NAME': BASE_DIR / 'db' / 'db.sqlite3',
     # }
+    # Comment out below line for local container run
     'default': dj_database_url.config(default=environ.get('DB_URL'))
 }
 
