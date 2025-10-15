@@ -1,51 +1,35 @@
-version: "3.9"
-
 services:
-  db:
-    image: postgres:latest
-    restart: always
-    environment:
-      POSTGRES_DB: mydb
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - shared_network
-  
   api:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: ["./docker_entrypoint.sh"]
+      dockerfile: docker/docker_files/Dockerfile
+    command: ["./docker/entrypoints/docker_entrypoint.sh"]
     volumes:
       - .:/app
-    depends_on:
-      - db
+      - db_volume:/app/db # SQLite db persistence
+    env_file:
+      - ./docker.env
     environment:
-      SECRET_KEY: "django-my-secret-key"
-      DEBUG_MODE: "True"
-      ALLOWED_HOSTS: "* localhost 127.0.0.1 [::1] .vercel.app"
-      DB_URL: "postgres://myuser:mypassword@db:5432/mydb"
+      - SECRET_KEY=django-my-secret-key
+      - DEBUG_MODE=True
+      - ALLOWED_HOSTS=* localhost 127.0.0.1 [::1] .vercel.app
       # Keys your Django app needs (set in .env or CI)
-      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
-      JINA_API_KEY: "${JINA_API_KEY:-}"
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - JINA_API_KEY=${JINA_API_KEY:-}
       # Qdrant connection — note we use service name 'qdrant' (hosted by Repo 1)
-      QDRANT_URL: "${QDRANT_URL:-http://qdrant:6333}"
-      QDRANT_API_KEY: "${QDRANT_API_KEY:-local_qdrant_key}"
+      - QDRANT_URL=${QDRANT_URL:-http://qdrant:6333}
+      - QDRANT_API_KEY=${QDRANT_API_KEY:-local_qdrant_key}
       # optional auto superuser
-      DJANGO_SUPERUSER_USERNAME: admin
-      DJANGO_SUPERUSER_EMAIL: admin@example.com
-      DJANGO_SUPERUSER_PASSWORD: adminpassword
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+      - DJANGO_SUPERUSER_PASSWORD=adminpassword
     ports:
       - "8000:8000"
     networks:
       - shared_network
 
 volumes:
-  postgres_data:
+  db_volume:
 
 networks:
   shared_network:

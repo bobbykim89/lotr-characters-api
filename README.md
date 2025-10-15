@@ -296,6 +296,165 @@ Currently, no rate limiting is implemented. This may be added in future versions
 
 ---
 
+## Running the Container Locally
+
+This guide will help you set up and run the Django REST Framework application using Docker.
+
+### Prerequisites
+
+- Docker and Docker Compose installed on your system
+- Qdrant container up and running (from repo 1)
+
+### Setup Instructions
+
+#### 1. Set Up Qdrant Container
+
+Ensure you have the Qdrant setup completed and the Qdrant container is up and running from **repo 1** before proceeding.
+
+#### 2. Switch to SQLite Database
+
+By default, the application is configured to connect to the production PostgreSQL database. For local container runs, you need to switch to SQLite.
+
+Open `app/settings.py` and modify the `DATABASES` configuration:
+
+**Comment out the PostgreSQL configuration and uncomment the SQLite configuration:**
+
+```python
+DATABASES = {
+    # Comment in below lines for local container run
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db' / 'db.sqlite3',
+    }
+    # Comment out below line for local container run
+    # 'default': dj_database_url.config(default=environ.get('DB_URL'))
+}
+```
+
+⚠️ **Important**: Remember to revert this change before deploying to production!
+
+#### 3. Configure Environment Variables
+
+Copy the environment template file to the project root:
+
+```bash
+cp docker/docker.env.txt docker.env
+```
+
+#### 4. Update API Keys
+
+Open the `docker.env` file and update the following keys with your actual API credentials:
+
+- **OPENAI_API_KEY**: Your OpenAI API key
+- **JINA_API_KEY**: Your Jina API key (can be obtained from [Jina AI](https://jina.ai/) free of charge)
+
+Example:
+```env
+OPENAI_API_KEY=sk-your-openai-key-here
+JINA_API_KEY=your-jina-key-here
+```
+
+#### 4. Make the Run Script Executable
+
+Grant execute permissions to the Docker run script:
+
+```bash
+chmod +x ./docker_run.sh
+```
+
+#### 5. Build and Run the Container
+
+Execute the run script:
+
+```bash
+./docker_run.sh
+```
+
+The container will start building. **Wait until the build process is complete.** This may take a few minutes on the first run.
+
+#### 6. Verify the Application
+
+Once the build is complete and the container is running, open your browser and navigate to:
+
+```
+http://localhost:8000
+```
+
+You should see your Django REST Framework application running successfully.
+
+### Additional Commands
+
+#### Stop the Container
+
+```bash
+docker-compose down
+```
+
+#### View Logs
+
+```bash
+docker-compose logs -f web
+```
+
+#### Access Container Shell
+
+```bash
+docker-compose exec web bash
+```
+
+#### Create Django Superuser (created automatically in initial run)
+
+```bash
+docker-compose exec web python manage.py createsuperuser
+```
+
+#### Run Migrations
+
+```bash
+docker-compose exec web python manage.py migrate
+```
+
+#### Rebuild Container (after code changes)
+
+```bash
+docker-compose up --build
+```
+
+### Troubleshooting
+
+#### Port Already in Use
+
+If port 8000 is already in use, you can change it in `docker-compose.yaml`:
+
+```yaml
+ports:
+  - "8001:8000"  # Change 8001 to any available port
+```
+
+#### Permission Issues
+
+If you encounter permission issues with the script:
+
+```bash
+chmod +x ./docker_run.sh
+```
+
+#### Database Issues
+
+If you need to reset the database:
+
+```bash
+docker-compose down -v  # Removes volumes including database
+docker-compose up --build
+```
+
+### Notes
+
+- The SQLite database is persisted in a Docker volume, so your data will survive container restarts
+- Make sure Qdrant is running before starting this container
+- Never commit your `docker.env` file with actual API keys to version control
+- **Remember to revert the database configuration in `app/settings.py` back to PostgreSQL before deploying to production**
+
 ## Dependencies
 
 The API is built using the following key dependencies:
@@ -320,6 +479,7 @@ For issues, questions, or contributions, please contact the development team or 
 ## Changelog
 
 ### Version 1.0.0 (Current)
+
 - Initial release
 - Conversation management
 - RAG-based question answering
