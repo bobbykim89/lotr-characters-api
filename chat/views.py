@@ -1,11 +1,11 @@
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_list_or_404, get_object_or_404
 
 from .models import Conversation, Message
-from .serializers import ConversationSerializer, MessageSerializer
+from .serializers import ConversationSerializer, MessageSerializer, MessageFeedbackSerializer
 from lib.rag import LotrCharactersRag
 
 # Create your views here.
@@ -72,3 +72,13 @@ class MessageView(APIView):
 class MessagesLogView(ListAPIView):
     serializer_class = MessageSerializer
     queryset = Message.objects.all()
+
+class MessageFeedbackUpdateView(UpdateAPIView):
+    """
+    Update feedback for a specific message
+    """
+    queryset = Message.objects.all()
+    serializer_class = MessageFeedbackSerializer
+    lookup_field = "id"
+    lookup_url_kwarg = "message_id"
+    http_method_names = ['put']
